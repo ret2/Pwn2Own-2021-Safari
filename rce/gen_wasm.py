@@ -39,6 +39,7 @@ def get_jsc_offsets_from_shared_cache():
         jsc_base = int(lldb.recvuntil("\n")[:-1], 16)
 
         lldb.sendline("dis -n slow_path_wasm_out_of_line_jump_target")
+        lldb.sendline("script print()")
         lldb.recvuntil("JavaScriptCore`slow_path_wasm_out_of_line_jump_target:\n")
         disas = lldb.recvuntil("\n\n").decode("utf-8")
         disas = disas.split('\n')
@@ -46,6 +47,7 @@ def get_jsc_offsets_from_shared_cache():
         leak_off = int(disas.split(' <')[0].strip(), 16)-jsc_base
 
         lldb.sendline("dis -n WTF::MetaAllocatorHandle::dump")
+        lldb.sendline("script print()")
         lldb.recvuntil("JavaScriptCore`WTF::MetaAllocatorHandle::dump:\n")
         disas = lldb.recvuntil("\n\n").decode("utf-8")
         try:
@@ -58,13 +60,16 @@ def get_jsc_offsets_from_shared_cache():
 
         syms = {}
         lldb.sendline("dis -n JSC::ExecutableAllocator::allocate -c 1")
+        lldb.sendline("script print()")
         lldb.recvuntil("JavaScriptCore`JSC::ExecutableAllocator::allocate:\n")
         syms['__ZN3JSC19ExecutableAllocator8allocateEmNS_20JITCompilationEffortE'] = int(lldb.recvuntil("\n\n").decode("utf-8").split('\n')[0].strip().split(' <')[0], 16)-jsc_base
         lldb.sendline("dis -n WTF::CString::copyBufferIfNeeded")
+        lldb.sendline("script print()")
         disas = lldb.recvuntil("\n\n").decode("utf-8")
         disas = [ln for ln in disas.split('\n') if "symbol stub for: memcpy" in ln and "call " in ln][0]
         syms["_memcpy"] = int(disas.split('call ')[-1].split(';')[0].strip(), 16)-jsc_base
         lldb.sendline("dis -n initBOMCopierNew")
+        lldb.sendline("script print()")
         disas = lldb.recvuntil("\n\n").decode("utf-8")
         disas = [ln for ln in disas.split('\n') if "symbol stub for: dlsym" in ln and "call " in ln][0]
         syms["_dlsym"] = int(disas.split('call ')[-1].split(';')[0].strip(), 16)-jsc_base
