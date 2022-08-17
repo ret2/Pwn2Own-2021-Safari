@@ -96,7 +96,12 @@
     v(int, CFStringGetCString, CFStringRef, char*, CFIndex, CFStringEncoding)\
     v(CFTypeRef, IORegistryEntryCreateCFProperty, io_registry_entry_t, CFStringRef, CFAllocatorRef, IOOptionBits)\
     v(CFStringRef, CFStringCreateWithCString, CFAllocatorRef, char*, CFStringEncoding)\
-    v(void, CFRelease, CFTypeRef)
+    v(void, CFRelease, CFTypeRef)\
+    v(int, i386_set_ldt, int, void*, int)\
+    v(kern_return_t, mach_port_insert_right, ipc_space_t, mach_port_t, mach_port_t, mach_msg_type_name_t)\
+    v(mach_port_t, mach_thread_self)\
+    v(int, pthread_detach, pthread_t)\
+    v(kern_return_t, thread_set_exception_ports, thread_act_t, exception_mask_t, mach_port_t, exception_behavior_t, thread_state_flavor_t)
 
 // only one of eop.c and eop_common.c can define these globals, little hacky
 #ifdef FULLCHAIN
